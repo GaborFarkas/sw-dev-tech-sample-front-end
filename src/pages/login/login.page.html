@@ -11,6 +11,9 @@
                     <div class="row">
                         <div class="col-lg-12 col-md-12 col-sm-12">
                             <fieldset>
+                                <p *ngIf="errorMessage" class="validation">
+                                    <span>{{errorMessage}}</span>
+                                </p>
                                 <p *ngIf="!loginForm.controls.email.valid" class="validation">
                                     <span *ngIf="loginForm.controls.email.errors?.['required']">Email field is required.</span>
                                     <span *ngIf="loginForm.controls.email.errors?.['email']">Email format is incorrect.</span>

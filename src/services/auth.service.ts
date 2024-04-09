@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { LoginRequest, JwtResponse } from '../models/auth.model';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject } from 'rxjs';
 import { UserModel } from '../models/user.model';
+import { ResponseModel, ResponseStatus } from '../models/response.model';
 
 @Injectable()
 export class AuthService {
@@ -15,9 +16,13 @@ export class AuthService {
     login(model: LoginRequest) {
         const loginRequest = this.http.post<JwtResponse>('http://127.0.0.1:8000/api/login', model);
         loginRequest.subscribe(jwt => {
-            this.jwtToken = jwt;
-            this.getUserData();
+            if (jwt.status === ResponseStatus.SUCCESS) {
+                this.jwtToken = jwt;
+                this.getUserData();
+            }
         });
+
+        return loginRequest;
     }
 
     getUserData() {
@@ -26,11 +31,25 @@ export class AuthService {
         });
         req.subscribe(user => {
             this.user.next(user);
-            console.log(this.user);
-        })
+        });
+
+        return req;
     }
 
-    private createAuthHeaders() {
+    logout() {
+        const req = this.http.get<ResponseModel>('http://127.0.0.1:8000/api/logout', {
+            headers: this.createAuthHeaders()
+        });
+        req.subscribe(resp => {
+            if (resp.status === ResponseStatus.SUCCESS) {
+                this.user.next(null);
+            }
+        });
+
+        return req;
+    }
+
+    public createAuthHeaders() {
         return new HttpHeaders({
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${this.jwtToken?.access_token}`,

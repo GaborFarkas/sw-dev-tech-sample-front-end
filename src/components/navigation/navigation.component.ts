@@ -1,5 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
+import { AuthService } from '../../services/auth.service';
+import { UserModel } from '../../models/user.model';
 
 @Component({
     selector: 'nav',
@@ -9,13 +11,15 @@ import { Component } from '@angular/core';
     styleUrl: './navigation.component.css'
 })
 export class NavigationComponent {
-    protected user?: string;
-
-    protected login() {
-        this.user = 'J. Doe';
+    constructor(private authService: AuthService) {
+        authService.user.subscribe(next => {
+            this.user = next;
+        });
     }
 
+    protected user: UserModel | null = null;
+
     protected logout() {
-        this.user = undefined;
+        this.authService.logout();
     }
 }
