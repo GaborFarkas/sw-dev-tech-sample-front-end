@@ -5,6 +5,7 @@ import { LoginRequest } from '../../models/auth.model';
 import { CommonModule } from '@angular/common';
 import { ResponseModel, ResponseStatus } from '../../models/response.model';
 import { HttpErrorResponse } from '@angular/common/http';
+import { Router } from '@angular/router';
 
 @Component({
     selector: 'div.login.app-page',
@@ -23,7 +24,8 @@ export class LoginPage {
      */
     protected errorMessage?: string;
 
-    constructor(private authService: AuthService) { }
+    constructor(private authService: AuthService,
+                private router: Router) { }
 
     protected submitForm() {
         this.errorMessage = undefined;
@@ -34,6 +36,10 @@ export class LoginPage {
                     if (backendError.status === ResponseStatus.ERROR) {
                         this.errorMessage = backendError.message;
                     }
+                },
+                next: data => {
+                    // Request successful, navigate to home page
+                    this.router.navigate(['']);
                 }
             });
         }
