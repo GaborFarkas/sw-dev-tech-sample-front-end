@@ -4,19 +4,30 @@ import { LoginRequest, JwtResponse } from '../models/auth.model';
 import { BehaviorSubject } from 'rxjs';
 import { UserModel } from '../models/user.model';
 import { ResponseModel, ResponseStatus } from '../models/response.model';
+import { environment } from '../environments/environment';
 
 @Injectable()
 export class AuthService {
-    constructor(private http: HttpClient) { }
+    constructor(private http: HttpClient) {
+        // Read JWT
+        const str = localStorage.getItem('jwt');
+        if (str) {
+            this.jwtToken = JSON.parse(str);
+            this.getUserData();
+        }
+    }
 
     public jwtToken?: JwtResponse;
 
-    public user: BehaviorSubject<UserModel|null> = new BehaviorSubject<UserModel|null>(null);
+    public user: BehaviorSubject<UserModel | null> = new BehaviorSubject<UserModel | null>(null);
 
     login(model: LoginRequest) {
-        const loginRequest = this.http.post<JwtResponse>('http://127.0.0.1:8000/api/login', model);
+        const loginRequest = this.http.post<JwtResponse>(`${environment.backendUrl}/api/v1/login`, model);
         loginRequest.subscribe(jwt => {
             if (jwt.status === ResponseStatus.SUCCESS) {
+                //Save JWT
+                localStorage.setItem('jwt', JSON.stringify(jwt));
+
                 this.jwtToken = jwt;
                 this.getUserData();
             }
@@ -26,7 +37,7 @@ export class AuthService {
     }
 
     getUserData() {
-        const req = this.http.get<UserModel>('http://127.0.0.1:8000/api/login', {
+        const req = this.http.get<UserModel>(`${environment.backendUrl}/api/v1/login`, {
             headers: this.createAuthHeaders()
         });
         req.subscribe(user => {
@@ -37,7 +48,7 @@ export class AuthService {
     }
 
     logout() {
-        const req = this.http.get<ResponseModel>('http://127.0.0.1:8000/api/logout', {
+        const req = this.http.get<ResponseModel>(`${environment.backendUrl}/api/v1/logout`, {
             headers: this.createAuthHeaders()
         });
         req.subscribe(resp => {
