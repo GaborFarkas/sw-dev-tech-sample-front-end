@@ -22,13 +22,13 @@ export class AuthService {
     public user: BehaviorSubject<UserModel | null> = new BehaviorSubject<UserModel | null>(null);
 
     login(model: LoginRequest) {
-        const loginRequest = this.http.post<JwtResponse>(`${environment.backendUrl}/api/v1/login`, model);
-        loginRequest.subscribe(jwt => {
-            if (jwt.status === ResponseStatus.SUCCESS) {
+        const loginRequest = this.http.post<ResponseModel<JwtResponse>>(`${environment.backendUrl}/api/v1/login`, model);
+        loginRequest.subscribe(resp => {
+            if (resp.status === ResponseStatus.SUCCESS) {
                 //Save JWT
-                localStorage.setItem('jwt', JSON.stringify(jwt));
+                localStorage.setItem('jwt', JSON.stringify(resp.data));
 
-                this.jwtToken = jwt;
+                this.jwtToken = resp.data;
                 this.getUserData();
             }
         });
@@ -37,18 +37,18 @@ export class AuthService {
     }
 
     getUserData() {
-        const req = this.http.get<UserModel>(`${environment.backendUrl}/api/v1/login`, {
+        const req = this.http.get<ResponseModel<UserModel>>(`${environment.backendUrl}/api/v1/login`, {
             headers: this.createAuthHeaders()
         });
-        req.subscribe(user => {
-            this.user.next(user);
+        req.subscribe(resp => {
+            this.user.next(resp.data!);
         });
 
         return req;
     }
 
     logout() {
-        const req = this.http.get<ResponseModel>(`${environment.backendUrl}/api/v1/logout`, {
+        const req = this.http.get<ResponseModel<void>>(`${environment.backendUrl}/api/v1/logout`, {
             headers: this.createAuthHeaders()
         });
         req.subscribe(resp => {

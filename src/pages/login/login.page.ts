@@ -32,7 +32,7 @@ export class LoginPage {
         if (this.loginForm.valid) {
             this.authService.login(this.loginForm.value as LoginRequest).subscribe({
                 error: (error: HttpErrorResponse) => {
-                    const backendError: ResponseModel = error.error;
+                    const backendError: ResponseModel<void> = error.error;
                     if (backendError.status === ResponseStatus.ERROR) {
                         this.errorMessage = backendError.message;
                     }

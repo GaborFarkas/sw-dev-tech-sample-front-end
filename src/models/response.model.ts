@@ -1,4 +1,4 @@
-export interface ResponseModel {
+export interface ResponseModel<T> {
     /**
      * The response status.
      */
@@ -8,6 +8,11 @@ export interface ResponseModel {
      * The error message, if any.
      */
     message?: string
+
+    /**
+     * The payload, if any.
+     */
+    data?: T
 }
 
 export enum ResponseStatus {
